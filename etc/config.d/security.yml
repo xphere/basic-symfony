@@ -1,0 +1,10 @@
+security:
+    firewalls:
+        dev:
+            pattern: ^/_(errors|profiler|wdt)/
+            security: false
+        main:
+            anonymous: ~
+    providers:
+        in_memory:
+            memory: ~

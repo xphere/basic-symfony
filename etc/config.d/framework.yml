@@ -1,0 +1,19 @@
+framework:
+    assets: ~
+    csrf_protection: ~
+    default_locale: '%locale%'
+    form: ~
+    fragments: ~
+    http_method_override: false
+    php_errors:
+        log: true
+    router:
+        resource: '%kernel.config_dir%/routing/routing.yml'
+        strict_requirements: ~
+    secret: '%secret%'
+    session:
+        handler_id:  ~
+    trusted_hosts: ~
+    trusted_proxies: ~
+    validation:
+        enable_annotations: true
