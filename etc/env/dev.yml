@@ -10,6 +10,21 @@ framework:
     templating:
         engines: [ twig ]
 
+monolog:
+    handlers:
+        application:
+            channels:
+                - !event
+            level: debug
+            path: '%kernel.logs_dir%/%kernel.environment%.log'
+            type: stream
+        console:
+            channels:
+                - !console
+                - !event
+            process_psr_3_messages: false
+            type: console
+
 twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'

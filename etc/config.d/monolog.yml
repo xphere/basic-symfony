@@ -1,0 +1,13 @@
+monolog:
+    handlers:
+        application:
+            action_level: error
+            handler: file_log
+            type: fingers_crossed
+        file_log:
+            level: debug
+            path: '%kernel.logs_dir%/%kernel.environment%.log'
+            type: stream
+        console:
+            process_psr_3_messages: false
+            type: console
