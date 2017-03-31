@@ -1,4 +1,11 @@
 parameters:
+    # Database configuration
+    doctrine_credentials_login: root
+    doctrine_credentials_password: ~
+    doctrine_server_dbname: ~
+    doctrine_server_driver: pdo_mysql
+    doctrine_server_host: localhost
+    doctrine_server_port: ~
     # The default locale
     locale: en
     # A secret key that's used to generate certain security-related tokens

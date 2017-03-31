@@ -1,0 +1,14 @@
+doctrine:
+    dbal:
+        charset: UTF8
+        dbname: '%doctrine_server_dbname%'
+        driver: '%doctrine_server_driver%'
+        host: '%doctrine_server_host%'
+        password: '%doctrine_credentials_password%'
+        port: '%doctrine_server_port%'
+        user: '%doctrine_credentials_login%'
+
+    orm:
+        auto_generate_proxy_classes: '%kernel.debug%'
+        auto_mapping: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore
