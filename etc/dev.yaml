@@ -1,0 +1,9 @@
+imports:
+    - { resource: packages.d/ }
+
+framework:
+    profiler:
+        only_exceptions: false
+
+web_profiler:
+    toolbar: true

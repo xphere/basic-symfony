@@ -1,0 +1,8 @@
+framework:
+    default_locale: '%env(LANG)%'
+    php_errors:
+        log: true
+    router:
+        resource: kernel:loadRoutes
+        type: service
+    secret: '%env(APP_SECRET)%'

@@ -1,0 +1,33 @@
+{
+    "name": "xphere/basic-symfony",
+    "license": "MIT",
+    "type": "project",
+    "autoload": {
+        "classmap": [
+            "src/Infrastructure/Kernel.php"
+        ],
+        "psr-4": {
+        }
+    },
+    "require": {
+        "symfony/console": "^3.3",
+        "symfony/framework-bundle": "^3.3",
+        "symfony/yaml": "^3.3",
+        "php": ">=7.1"
+    },
+    "require-dev": {
+        "symfony/debug-bundle": "^3.3",
+        "symfony/dotenv": "^3.3",
+        "symfony/twig-bundle": "^3.3",
+        "symfony/web-profiler-bundle": "^3.3"
+    },
+    "scripts": {
+    },
+    "config": {
+        "bin-dir": "bin",
+        "preferred-install": "dist",
+        "vendor-dir": "lib"
+    },
+    "extra": {
+    }
+}
