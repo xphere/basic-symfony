@@ -1,7 +1,7 @@
 #
 # Symfony common dependencies layer
 #
-FROM alpine:edge
+FROM alpine:edge AS minimal_symfony
 
 RUN echo "@edge-community http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
  && apk add -U \
@@ -36,4 +36,11 @@ WORKDIR /srv
 #
 # Project specific dependencies layer
 #
+FROM minimal_symfony
 
+RUN apk add -U \
+        php7-pdo \
+        php7-pdo_sqlite \
+        php7-redis \
+ && rm -rf /var/cache/apk/* \
+;

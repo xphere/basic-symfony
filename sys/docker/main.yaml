@@ -6,6 +6,14 @@ services:
         image: app:main
         volumes: [ "../../:/srv" ]
 
+    rabbitmq:
+        image: rabbitmq:alpine
+        volumes: [ /var/lib/rabbitmq ]
+
+    redis:
+        image: redis:alpine
+        volumes: [ /data ]
+
     server:
         build: server
         image: app:server
