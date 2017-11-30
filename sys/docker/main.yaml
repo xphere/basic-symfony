@@ -1,0 +1,14 @@
+version: "2"
+
+services:
+    app:
+        build: app
+        image: app:main
+        volumes: [ "../../:/srv" ]
+
+    server:
+        build: server
+        image: app:server
+        depends_on: [ app ]
+        ports: [ 80 ]
+        volumes_from: [ app ]
