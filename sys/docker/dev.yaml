@@ -1,0 +1,10 @@
+version: "2"
+
+services:
+    app:
+        environment:
+            COMPOSER_ALLOW_SUPERUSER: 1
+        build:
+            dockerfile: Dockerfile.dev
+        image: app:dev
+        volumes: [ /srv/var, /srv/lib ]

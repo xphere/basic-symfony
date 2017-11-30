@@ -1,0 +1,9 @@
+#!/bin/sh
+
+trap "echo KO" 1 2 3 6
+
+echo -n "Restarting PHP-FPM... "
+
+kill -USR2 1
+
+echo OK

@@ -1,0 +1,23 @@
+#
+# Development layer
+#
+FROM app:main
+
+COPY files/dev /
+
+RUN apk add -U \
+        php7-xdebug \
+        php7-zlib \
+ && rm -rf /var/cache/apk/* \
+;
+
+# Install composer
+RUN php -r "copy('https://getcomposer.org/installer', '/tmp/composer-setup.php');" \
+ && php /tmp/composer-setup.php --install-dir=/usr/bin --filename=composer \
+ && composer global require --quiet hirak/prestissimo \
+;
+
+# Setup xdebug
+RUN HOST_IP="$(ip route | head -n 1 | cut -d' ' -f3)" \
+ && sed -i "s/xdebug.remote_host=localhost/xdebug.remote_host=${HOST_IP}/g" /etc/php7/conf.d/xdebug.ini \
+;

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+FILENAME=/etc/php7/conf.d/xdebug.ini
+
+if [ $# -gt 0 ]; then
+    case "$1" in
+        on)
+            REPLACE=";"
+            WITH=""
+            ;;
+        off)
+            REPLACE=""
+            WITH=";"
+            ;;
+        *)
+            echo Unknown parameter "$1" must be "on" or "off"
+            exit 1
+    esac
+
+    sed -i "1s/^${REPLACE}zend_extension/${WITH}zend_extension/g" "$FILENAME"
+fi
+
+echo -n "xdebug is "
+if php -m | fgrep -qi xdebug; then
+    echo ON
+else
+    echo OFF
+    if [ $# -eq 0 ]; then
+        exit 1
+    fi
+fi
