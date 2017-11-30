@@ -1,0 +1,209 @@
+#!/bin/sh
+
+APP_NAME="${APP_NAME:-app}"
+CONTAINER="${CONTAINER:-app}"
+NUMBER="${NUMBER:-1}"
+ENV="${ENV:-dev}"
+USER="$(id -u):$(id -g)"
+
+CONTAINER_NAME="${APP_NAME}_${CONTAINER}_${NUMBER}"
+DOCKER="$(which docker.exe || which docker)"
+DOCKER_COMPOSE="$(which docker-compose)"
+SOURCE="$0"
+
+cd "$(dirname "${SOURCE}")"
+
+command_host_up() { # run docker compose up
+    docker_compose "${ENV}" up -d "$@"
+}
+
+command_host_down() { # run docker compose down
+    docker_compose "${ENV}" down "$@"
+}
+
+command_host_docker_build() { # rebuild docker
+    docker_compose_build
+}
+
+command_host_shell() { # enter app shell container as root
+    docker_exec -it -- sh -l "$@"
+}
+
+command_host_usershell() { # enter app shell container as current user
+    docker_exec -it --user="${USER}" -- sh -l "$@"
+}
+
+command_host_exec() { # run command in app container
+    docker_exec "$@"
+}
+
+command_remote_console() { # call symfony console
+    console "$@"
+}
+
+command_remote_xon() { # activate xdebug
+    xdebug on "$@"
+}
+
+command_remote_xoff() { # deactivate xdebug
+    xdebug off "$@"
+}
+
+command_remote_restart() { # restart php-fpm
+    restart "$@"
+}
+
+command_remote_composer() { # execute composer
+    composer "$@"
+}
+
+command_remote_env() { # update environment files
+    update_environment && echo Environment file updated correctly
+}
+
+help() {
+    [ $# -gt 0 ] && echo && echo "$@"
+    echo
+    echo Command list:
+    list_commands
+    echo
+}
+
+is_inside_container() {
+    fgrep -qa docker /proc/1/cgroup
+}
+
+list_commands() {
+    list_functions | cut -d'_' -f3- | while read line; do
+        echo - $line
+    done
+}
+
+list_functions() {
+    if is_inside_container; then
+        REGEX='remote'
+    else
+        REGEX='(host|remote)'
+    fi
+
+    egrep -o "^command_${REGEX}_[^ (]+" -- "${SOURCE}"
+}
+
+function_exists() {
+    list_functions | egrep -qa "^$1\$"
+}
+
+docker_compose() {
+    local FILES=''
+    FILES=${FILES}' -f sys/docker/main.yaml'
+    [ "$1" = "dev" -o "$1" = "tools" ] && FILES=${FILES}' -f sys/docker/dev.yaml'
+    [ "$1" = "tools" ] && FILES=${FILES}' -f sys/docker/tools.yaml'
+    shift
+
+    "${DOCKER_COMPOSE}" -p "${APP_NAME}" ${FILES} "$@"
+}
+
+docker_compose_build() {
+    docker_compose main build
+    docker_compose "${ENV}" build
+}
+
+docker_compose_up() {
+    docker_compose main build
+    docker_compose "${ENV}" up -d
+}
+
+docker_exec() {
+    is_docker_up || docker_compose_up
+
+    local ARGS=""
+    [ "$1" != "${1#-}" ] && while [ $# -gt 0 ]; do
+        ARG="$1"
+        shift
+        if [ "$ARG" = "--" ]; then
+            break;
+        fi
+        ARGS="$ARGS $ARG"
+    done
+
+    "${DOCKER}" exec $ARGS "${CONTAINER_NAME}" "$@"
+}
+
+is_docker_up() {
+    "${DOCKER}" ps | fgrep -qa "${CONTAINER_NAME}"
+}
+
+is_environment_updated() {
+    [ .env -nt .env.dist ]
+}
+
+update_environment() {
+    env_source="$(mktemp)"
+    egrep -o '^\s*[^#][^=]+' .env.dist > "${env_source}"
+    sh -ac '. ./.env.dist && . ./.env && env' | fgrep -f "${env_source}" | sort -o .env
+}
+
+is_composer_updated() {
+    [ -r lib ] && [ composer.json -ot composer.lock ]
+}
+
+update_composer() {
+    touch composer.lock
+    composer install
+}
+
+console() {
+    is_environment_updated || update_environment
+    is_composer_updated || update_composer
+
+    bin/console "$@"
+}
+
+execute() {
+    "$@"
+    exit $?
+}
+
+try_remote() {
+    COMMAND="$1"
+
+    TRY_COMMAND="command_remote_${COMMAND}"
+    if ! function_exists "${TRY_COMMAND}"; then
+        return
+    fi
+
+    if is_inside_container; then
+        shift
+        execute "${TRY_COMMAND}" "$@"
+    fi
+
+    docker_exec ./run "$@"
+    exit $?
+}
+
+try_host() {
+    COMMAND="$1"
+
+    TRY_COMMAND="command_host_${COMMAND}"
+    if ! function_exists "${TRY_COMMAND}"; then
+        return
+    fi
+
+    shift
+    execute "${TRY_COMMAND}" "$@"
+}
+
+main() {
+    if [ $# -eq 0 ]; then
+        help
+        return 1
+    fi
+
+    try_remote "$@"
+    try_host "$@"
+
+    help "Command not found: '${COMMAND}'"
+    return 1
+}
+
+main "$@"
