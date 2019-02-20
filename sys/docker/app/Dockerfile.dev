@@ -12,9 +12,9 @@ RUN apk add -U \
 ;
 
 # Install composer
-RUN php -r "copy('https://getcomposer.org/installer', '/tmp/composer-setup.php');" \
- && php /tmp/composer-setup.php --install-dir=/usr/bin --filename=composer \
- && composer global require --quiet hirak/prestissimo \
+COPY --from="composer:1.8.4" /usr/bin/composer /usr/bin/composer
+RUN composer global require --quiet hirak/prestissimo \
+ && composer clear-cache --quiet \
 ;
 
 # Setup xdebug
