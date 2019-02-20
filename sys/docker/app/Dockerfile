@@ -4,7 +4,7 @@
 FROM alpine:edge
 
 RUN echo "@edge-community http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
- && apk add -U \
+ && apk add --no-cache \
         tini \
         php7-fpm \
         php7-cli \
@@ -23,7 +23,6 @@ RUN echo "@edge-community http://dl-cdn.alpinelinux.org/alpine/edge/community" >
         php7-simplexml \
         php7-tokenizer \
         php7-xml \
- && rm -rf /var/cache/apk/* \
 ;
 
 COPY files/main /
